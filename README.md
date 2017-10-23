@@ -68,9 +68,11 @@ At Cali Dog we put out OSS projects in a 4-phase release cycle:
 * `BETA` projects make some guarantees to stability and api immutability, but be sure to test thoroughly before putting things in production.
 * `RELEASED` projects are ready for general consumption and use in a production environment.
 
-**The project is currently in the `UNSTABLE` phase, so it's not quite ready for consumption, but we're getting there!**
+<p align="center">
+    <img align="center" src="https://user-images.githubusercontent.com/1072598/31913475-08f3d162-b7fc-11e7-9cd1-1cd31c055de7.gif">
+</p>
 
-![](https://user-images.githubusercontent.com/1072598/31913475-08f3d162-b7fc-11e7-9cd1-1cd31c055de7.gif)
+The project is currently in the **UNSTABLE** phase, so it's not quite ready for consumption, but we're getting there!
 
 ## Project Roadmap
 
