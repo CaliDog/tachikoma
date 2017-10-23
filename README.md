@@ -6,45 +6,35 @@
 
 ## What?
 
-Tachikoma is the alerting and analysis pipeline I've always wanted, but could never seem to find.
+Tachikoma is the alerting and analysis pipeline we've always wanted, but could never seem to find. It's inspired by projects like [Security Monkey](https://github.com/netflix/security_monkey), but attempts to fix what we feel are a number of shortcomings in other platforms.
 
-Highly concurrent in nature, it runs work in 3 distinct cycles to set up an extremely simple input -> process -> output pipeline. 
+Tachikoma operates on the concept of a 3-phase **pipeline**, which provides a nice separation of concerns and decouples your logic for retrieving security-relevant data, processing found results, and emitting alerts to 3rd party services (like email or Slack). This makes for much easier testing and readability, while providing good flexibility to analyze and alert on almost anything without going crazy.
 
+Right now it's designed to run in a batch processing mode, so you'd run your Tachikoma pipeline at some fixed interval (like once an hour). Eventually we're going to support real-time pipelines, so you can ingest data from live data sources (like websockets) and use that for triggering alerts as things happen. 
 
 ## Design
 
 The general workflow of Tachikoma breaks down into 3 major components, [generators](#generators), [analyzers](#analyzers), and [emitters](#emitters). 
 
-There is some extra processing happening behind the scenes (in the form of a [differs](#differs), [routers](#routers), and the [persistence](#persistence) mechanism), but usually you don't have to concern yourself with it, and you can focus mostly on the three major bits which lets you think of the whole pipeline as a basic Input -> Process -> Output sort of chain. 
-
 <p align="center">
     <img align="center" src="https://user-images.githubusercontent.com/1072598/31879375-1d6543e8-b792-11e7-8cab-fcce32ab1957.png">
 </p>
 
+It's worth noting there **is** some extra processing happening behind the scenes (in the form of a [differs](#differs), [routers](#routers), and a [persistence](#persistence) mechanism), but usually you don't have to concern yourself with it, and you can focus mostly ingesting data, processing it, alerting on it, and moving on with your life.
 
 ## Components 
 
 ### Generators 
 
-A generator's job is simple - it just generates data. The data can come from anywhere, but the idea is that it should generate **the same** data as long as nothing has changed in whatever you want to monitor. A good example of this idea is a list of Slack users for a given organization - the generator generating the list of slack users will be the exact same every time until a new user is added, or a user is removed. 
+A generator's job is simple - it just generates data. The data can come from anywhere, but the idea is that it should generate **the same** data as long as nothing has changed in whatever data source you want to monitor. A good example of this concept is a generator tasked with watching the slack users for a given organization - the generator generating the list of users will be the exact same every time until a new user is added, or a user is removed. 
 
-Generators can be either coroutines (decorated with `@asyncio.coroutine` or prefixed with the `async` keyword) or regular functions. If a regular function is used, it will be executed concurrently in a threadpool, so make sure your generators are thread safe!
-
-### Analyzer 
-
-Analyzers hold true to their namesake and analyze results coming in from the generator layer (after being diffed by the diffing engine), and receive 4 basic things - the generator's previous results, the generator's current results, a diffing data structure that holds the differences in the results, and a reference to the global shared state. 
-
-Each analyzer is responsible for analyzing their result and emitting a generic message (with a title and a long description, with optional metadata), which will then be used by the emitting layer to send properly formatted alerts to each service that's registered in the namespace.
-
-### Emitter 
-
-Emitters are the final stop in the pipeline lifecycle, and are responsible for interacting with external services to do things like publish results to an SNS topic, send emails, or trigger a GET request to a specific service. 
+Generators can be either coroutines (decorated with `@asyncio.coroutine` or prefixed with the `async` keyword) or regular functions. **If a regular function is used, it will be executed concurrently in a threadpool, so make sure your generators are thread safe!** 
 
 ### Differ
 
-The differ sits between the generators and the router responsible for dispatching generator results to the analyzers. It integrates with the persistence mechanism to get the previous run's generator results, then diffs that data with the current generator results. 
+The differ sits between the [generators](#generators) and the [router](#router) responsible for dispatching generator results to the [analyzers](#analyzers). It integrates with the [persistence](#persistence) mechanism to get the previous run's generator results, then diffs that data with the current generator results. 
 
-This is an extremely handy thing to have done generically and behind the scenes as it makes writing the logic for the analyzers quite easy. For example, if you were monitoring your AWS IAM users for any account additions, it'd be a simple matter of interrogating the diff information passed into your analyzer and emitting based only on that. 
+This is an extremely handy thing to have done generically and behind the scenes as it makes writing the logic for the [analyzers](#analyzers) quite easy. For example, if you were monitoring your AWS IAM users for any account additions, it'd be a simple matter of interrogating the diff information passed into your analyzer and emitting based only on that. 
 
 ### Persistence
 
@@ -54,9 +44,20 @@ There are a number of persistence mechanisms already included with Tachikoma, bu
 
 ### Router
 
-The routing layer is used in two places - to route generated data to the analyzers, and to route analyzer results to emitters. This routing layer is based on a very simple namespacing concept, so while generators have specific names (`aws.iam`, `slack.users`, etc), analyzers and emitters are associated with namespaces. 
+The routing layer is used in two places - to route generated data to the [analyzers](#analyzers), and to route analyzer results to [emitters](#emitters). This routing layer is based on a very simple namespacing concept, so while [generators](#generators) have specific names (`aws.iam`, `slack.users`, etc), [analyzers](#analyzers) and [emitters](#emitters) are associated with namespaces. 
 
-For example, when setting up the pipeline you may have a generator named `aws.iam`, and an analyzer listening in the `aws.*` namespace. The analyzer would receive data from any generator prefixed with the `aws` key, so it would recieve the `aws.ian` results for analysis. The same idea goes for emitters, and the emitter namespaces and analyzer namespaces are decoupled, so you can do cool things like have one analyzer for all `aws` services, but have specific emitters for specific services. 
+For example, when setting up the pipeline you may have a generator named `aws.iam`, and an analyzer listening in the `aws.*` namespace. The analyzer would receive data from any generator prefixed with the `aws` key, so it would receive the `aws.ian` results for analysis. The same idea goes for [emitters](#emitters), and the [emitter](#emitters) namespaces and analyzer namespaces are decoupled, so you can do cool things like have one analyzer for all `aws` services, but have specific [emitters](#emitters) for specific services. 
+
+### Analyzers
+
+Analyzers hold true to their namesake and analyze results coming in from the [generator](#generators) layer (after being diffed by the [diffing engine](#differ)), and receive 4 basic things - the generator's previous results, the generator's current results, a diffing data structure that holds the differences in the results, and a reference to the global shared state. 
+
+Each analyzer is responsible for analyzing their result and [emitting](#emitters) a generic message (with a title, description, and optional extra metadata), which will then be used by the emitting layer to send properly formatted data to each service that's registered for that namespace.
+
+### Emitters
+
+Emitters are the final stop in the pipeline lifecycle, and are responsible for interacting with external services to do things like publish results to an SNS topic, send emails, or trigger a GET request to a specific service. 
+
 
 ## Current Development Status
 
@@ -73,9 +74,9 @@ At Cali Dog we put out OSS projects in a 4-phase release cycle:
 
 ## Project Roadmap
 
-- [x] Generator Layer
-- [x] Diffing Layer
-- [x] Persistence Layer
-- [ ] Analyzer layer
-- [ ] Emitter layer
+- [x] [Generator](#generators) Layer
+- [x] [Diffing](#differ) Layer
+- [x] [Persistence](#persistence) Layer
+- [ ] [Analyzer](#analyzers) layer
+- [ ] [Emitter](#emitters) layer
 - [ ] Test coverage
