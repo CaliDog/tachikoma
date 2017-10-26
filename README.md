@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="center" src="https://user-images.githubusercontent.com/1072598/32069511-3e5bfc00-ba3e-11e7-818e-32c23239abdc.png">
+    <img align="center" src="https://user-images.githubusercontent.com/1072598/32069688-c0c0786a-ba3e-11e7-913c-93d9679e3b02.png">
     <p align="center">Security robots so smart it's concerning.</p>
 </p>
 
