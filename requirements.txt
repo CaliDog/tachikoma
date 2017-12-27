@@ -5,3 +5,4 @@ dictdiffer
 deepdiff
 nose
 uvloop
+slacker
