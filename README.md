@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="center" src="https://user-images.githubusercontent.com/1072598/31910286-d9363686-b7f1-11e7-84b0-852a56e6c085.png">
+    <img align="center" src="https://user-images.githubusercontent.com/1072598/34377019-e1f96e5c-eaa3-11e7-9778-4550b4c7ddc5.png">
     <p align="center">Security robots so smart it's concerning.</p>
 </p>
 
@@ -66,19 +66,10 @@ At Cali Dog we put out OSS projects in a 4-phase release cycle:
 * `UNSTABLE` projects are currently being developed in the open,  and probably aren't finished quite yet, so don't expect anything to work or be documented. 
 * `ALPHA` projects are ready for testing, though expect bugs and breakage.
 * `BETA` projects make some guarantees to stability and api immutability, but be sure to test thoroughly before putting things in production.
-* `RELEASED` projects are ready for general consumption and use in a production environment.
+* `STABLE` projects are ready for general consumption and use in a production environment.
 
 <p align="center">
     <img align="center" src="https://user-images.githubusercontent.com/1072598/31913475-08f3d162-b7fc-11e7-9cd1-1cd31c055de7.gif">
 </p>
 
-The project is currently in the **UNSTABLE** phase, so it's not quite ready for consumption, but we're getting there!
-
-## Project Roadmap
-
-- [x] [Generator](#generators) Layer
-- [x] [Diffing](#differ) Layer
-- [x] [Persistence](#persistence) Layer
-- [ ] [Analyzer](#analyzers) layer
-- [ ] [Emitter](#emitters) layer
-- [ ] Test coverage
+The project is currently in the **ALPHA** phase, so it's getting there, but expect some breakage and minimal integrations!
