@@ -3,6 +3,6 @@ structlog
 colorama
 dictdiffer
 deepdiff
-nose
+pytest
 uvloop
 slacker

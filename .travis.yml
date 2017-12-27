@@ -9,6 +9,6 @@ install:
   - pip install coveralls
   - pip install pytest-cov
 script:
-  - python -m nose --cov=tachikoma
+  - pytest tachikoma
 after_success:
     - coveralls
