@@ -1,7 +1,7 @@
 <p align="center">
     <img align="center" src="https://user-images.githubusercontent.com/1072598/34377019-e1f96e5c-eaa3-11e7-9778-4550b4c7ddc5.png">
     <p align="center">Security robots so smart it's concerning.</p>
-    <p align="center"><img src="https://travis-ci.org/CaliDog/tachikoma.svg?branch=master"></p>
+    <p align="center"><a href="https://travis-ci.org/CaliDog/tachikoma"><img src="https://travis-ci.org/CaliDog/tachikoma.svg?branch=master"></a></p>
 </p>
 
 
