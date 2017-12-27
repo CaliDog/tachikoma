@@ -1,14 +1,24 @@
 import asyncio
 import importlib
 import os
-
-settings = importlib.import_module(os.getenv('SETTINGS_MODULE', 'tachikoma.settings'))
-
-loop = asyncio.get_event_loop()
-loop.set_debug(True)
-
 import structlog
 import logging
+import uvloop
+import warnings
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+try:
+    settings = importlib.import_module(os.getenv('SETTINGS_MODULE', 'tachikoma.settings'))
+except ImportError:
+    warnings.warn("Couldn't import settings module! Perhaps you need "
+                  "to create a tachikoma/settings.py file, or set your"
+                  " SETTINGS_MODULE environment variable to a different"
+                  "file. Proceeding with a null settings object so some"
+                  " things may not work correctly.")
+    settings = None
+
+loop = asyncio.get_event_loop()
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('botocore').setLevel(logging.WARNING)
