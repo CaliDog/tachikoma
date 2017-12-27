@@ -3,3 +3,4 @@ structlog
 dictdiffer
 deepdiff
 nose
+uvloop
