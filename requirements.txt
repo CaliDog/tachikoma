@@ -1,6 +1,6 @@
 aiobotocore
 structlog
-structlog[dev]
+colorama
 dictdiffer
 deepdiff
 nose
