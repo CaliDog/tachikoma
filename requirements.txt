@@ -2,3 +2,4 @@ aiobotocore
 structlog
 dictdiffer
 deepdiff
+nose
