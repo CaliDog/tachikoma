@@ -2,7 +2,7 @@ import asyncio
 
 from tachikoma.generators.aws import AWSGenerator, run_in_all_regions
 
-class AWSACMGenerators(AWSGenerator):
+class AWSACMGenerator(AWSGenerator):
     service = "acm"
 
     @run_in_all_regions

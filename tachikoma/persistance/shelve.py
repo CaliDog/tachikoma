@@ -7,6 +7,11 @@ from tachikoma.persistance import BasePersistanceMechanism
 from functools import lru_cache
 
 class ShelveDB(BasePersistanceMechanism):
+    """
+    ShelveDB backed data store. Stores diffs locally by default in /tmp/tachikoma.db.
+
+    *NOTE* This is *not* resilient to failure, and has a possibility of clobbering diffs before emitting,
+    """
     def __init__(self, db_file='/tmp/tachikoma.db'):
         self.db_file = db_file
 

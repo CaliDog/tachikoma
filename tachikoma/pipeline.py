@@ -8,22 +8,28 @@ import time
 
 from tachikoma import loop, settings
 from tachikoma.differs import MultiDiffer
-from tachikoma.persistance.flatfile import ShelveDB
+from tachikoma.persistance.shelve import ShelveDB
 
+# TODO: Add in string-to-module resolution for specified generators/analyzers/emitters (like django)
 
 class BasePipeline(object):
-    db = ShelveDB()
-
-    def __init__(self, generators, analyzers, emitters):
+    def __init__(self, generators, analyzers, emitters, db=None):
         self.generators = generators
         self.analyzers = analyzers
         self.emitters = emitters
         self.logger = structlog.get_logger()
+
+        if db is None:
+            self.db = ShelveDB()
+        else:
+            self.db = db
+
         self.context = {
             "generators": {},
             "analyzers": {},
             "emitters": {},
-            "diffs": {}
+            "diffs": {},
+            "messages": {}
         }
 
         if "*" in generators.keys():
@@ -55,12 +61,15 @@ class BasePipeline(object):
             self.context['previous-results'], self.context['generators']
         )
 
-        self.context['diffs'].update(diffs)
+        self.context['diffs'] = diffs
 
-        self.db.store_diffs(diffs)
+        self.db.store_diffs(self.context['diffs'])
+
         self.db.store_new_results(self.context['generators'])
 
-        analysis = self.call_analyzers()
+        self.context['analyzer_messages'] = self.run_analyzers()
+
+        self.context['sent_notifications'] = self.run_emitters()
 
 
     def run_generators(self):
@@ -86,8 +95,8 @@ class BasePipeline(object):
     def get_differ(self):
         return MultiDiffer()
 
-    def call_analyzers(self):
-        notifications = []
+    def run_analyzers(self):
+        notifications = {}
         for analyzer_regex, analyzer_instance in self.analyzers.items():
             matched_channels = [x for x in self.context.get('generators').keys() if re.match(analyzer_regex, x)]
             if not matched_channels:
@@ -99,13 +108,32 @@ class BasePipeline(object):
                     new_results=self.context.get('generators').get(channel, {}),
                     diffs=self.context.get('diffs', {}).get(channel, {}),
                     channel=channel,
-                    global_ctx=self.context
+                    pipeline=self
                 )
 
-            notifications += analyzer_instance.notifications
+                if analyzer_instance.notifications:
+                    if channel not in notifications:
+                        notifications[channel] = []
+                    notifications[channel] += analyzer_instance.notifications
 
         return notifications
 
+    def run_emitters(self):
+        sent_notifications = []
+        for emitter_regex, emitter_instance in self.emitters.items():
+            matched_channels = [x for x in self.context.get('generators').keys() if re.match(emitter_regex, x)]
+            if not matched_channels:
+                warnings.warn("The emitter regex '{}' didn't match any generator channels, this shouldn't happen!")
+
+            for channel in matched_channels:
+                sent_notification = emitter_instance.emit(
+                    channel=channel,
+                    message=self.context['analyzer_messages'][channel],
+                    pipeline=self
+                )
+                sent_notifications.append(sent_notification)
+
+        return sent_notifications
 
 class Pipeline(BasePipeline):
     pass

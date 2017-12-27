@@ -1,6 +1,6 @@
 from tachikoma.generators.aws import AWSGenerator
 
-class AWSIAMGenerators(AWSGenerator):
+class AWSIAMGenerator(AWSGenerator):
     service = "iam"
 
     async def generate_access_key_list(self, region_name=None):

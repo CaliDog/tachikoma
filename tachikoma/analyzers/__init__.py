@@ -3,13 +3,17 @@ from structlog import get_logger
 class BaseAnalyzer(object):
     logger = get_logger()
     notifications = []
-    def add_notification(self, title, description):
-        pass
+    def add_notification(self, title, description, meta=None):
+        if meta is None:
+            meta = {}
 
-    def add_notification_template(self, title_template, body_template, context):
-        pass
+        self.notifications.append({
+            "title": title,
+            "description": description,
+            "meta": meta
+        })
 
-    def analyze(self, previous_results, new_results, diffs, channel, global_ctx):
+    def analyze(self, previous_results, new_results, diffs, channel, pipeline):
         channel_func = channel.replace('.', '_')
         method_name = "analyze_{}".format(channel_func)
 
@@ -26,6 +30,9 @@ class BaseAnalyzer(object):
         if previous_results == new_results:
             self.logger.info("Nothing has changed for {}.{}(), skipping analysis.".format(self.__class__.__name__, method_name))
         elif previous_results:
-            method_ref(previous_results, new_results, diffs, global_ctx)
+            method_ref(previous_results, new_results, diffs, pipeline)
         else:
             self.logger.info("No previous results for {}.{}(), skipping analysis to get a baseline.".format(self.__class__.__name__, method_name))
+
+from .aws import *
+from .slack import *

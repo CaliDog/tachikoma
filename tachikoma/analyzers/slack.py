@@ -3,10 +3,11 @@ from tachikoma.analyzers import BaseAnalyzer
 
 
 class SlackAnalyzer(BaseAnalyzer):
-    def analyze_aws_iam(self, previous_results, new_results, diffs, global_ctx):
-        pass
-        # for region in new_results:
-        #     self.add_notification(
-        #         title="",
-        #         description=""
-        #     )
+    def analyze(self, previous_results, new_results, diffs, channel, pipeline):
+        for operation, path, diff in diffs['dict_diff']:
+            if operation == "add" and path == "users":
+                for index, addition in diff:
+                    self.add_notification(
+                        title="User \"{}\" added to Slack".format(addition['name']),
+                        description="User \"{}\" added to Slack".format(addition['name'])
+                    )

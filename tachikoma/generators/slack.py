@@ -1,5 +1,6 @@
 from tachikoma.generators import ThreadedGenerator
 from tachikoma import settings
+
 from slacker import Slacker
 
 class SlackGenerator(ThreadedGenerator):

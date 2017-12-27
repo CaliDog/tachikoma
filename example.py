@@ -1,24 +1,21 @@
 import tachikoma
 
-from tachikoma.analyzers.aws.all import AWSAnalyzer
-from tachikoma.analyzers.slack import SlackAnalyzer
-
-from tachikoma.generators.aws.acm import AWSACMGenerators
-from tachikoma.generators.aws.iam import AWSIAMGenerators
-from tachikoma.generators.slack import SlackGenerator
+from tachikoma import analyzers
+from tachikoma import generators
+from tachikoma import emitters
 
 pipeline = tachikoma.Pipeline(
     generators={
-        "aws.iam": AWSIAMGenerators(),
-        "aws.acm": AWSACMGenerators(),
-        "slack": SlackGenerator()
+        "slack": generators.SlackGenerator(),
+        "aws.iam": generators.AWSACMGenerator(),
+        "aws.acm": generators.AWSIAMGenerator(),
     },
     analyzers={
-        "aws.*": AWSAnalyzer(),
-        "slack": SlackAnalyzer()
+        "aws.*": analyzers.AllAWSAnalyzer(),
+        "slack": analyzers.SlackAnalyzer()
     },
     emitters={
-         # "aws.*": SlackEmitter()
+         "aws.*": emitters.SlackEmitter()
     },
 )
 

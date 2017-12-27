@@ -5,7 +5,7 @@ import difflib
 import deepdiff
 import itertools
 
-from tachikoma.util import TachiKomaJSONEncoder
+from tachikoma.util import TachikomaJSONEncoder
 
 
 class BaseDiffer(object):
@@ -23,13 +23,13 @@ class MultiDiffer(BaseDiffer):
             new_data = new_results.get(key, {})
 
             unified_diff = "\n".join(list(difflib.unified_diff(
-                json.dumps(old_data, indent=4, sort_keys=True, cls=TachiKomaJSONEncoder).split("\n"),
-                json.dumps(new_data, indent=4, sort_keys=True, cls=TachiKomaJSONEncoder).split("\n"),
+                json.dumps(old_data, indent=4, sort_keys=True, cls=TachikomaJSONEncoder).split("\n"),
+                json.dumps(new_data, indent=4, sort_keys=True, cls=TachikomaJSONEncoder).split("\n"),
             )))
 
             dict_diff = list(dictdiffer.diff(old_data, new_data))
 
-            deep_diff = deepdiff.DeepDiff(old_data, new_data, ignore_order=True)
+            deep_diff = deepdiff.DeepDiff(old_data, new_data, ignore_order=True, view="tree")
 
             diff_payload[key] = {
                 "unified": unified_diff,

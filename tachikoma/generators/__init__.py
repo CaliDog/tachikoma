@@ -110,3 +110,8 @@ class ThreadedGenerator(BaseGenerator):
                     loop.run_in_executor, self.threadpool, method_reference
                 )
                 yield method_name, coroutine
+
+from .aws.acm import AWSACMGenerator
+from .aws.iam import AWSIAMGenerator
+
+from .slack import SlackGenerator
