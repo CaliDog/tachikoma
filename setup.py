@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -14,7 +14,7 @@ what you want to do!
 
 setup(
     name='tachikoma',
-    version="1.4",
+    version="1.5",
     url='https://github.com/CaliDog/tachikoma/',
     author='Ryan Sears',
     install_requires=dependencies,
@@ -22,7 +22,7 @@ setup(
     author_email='ryan@calidog.io',
     description='Tachikoma is an alerting pipeline so smart it\'s scary',
     long_description=long_description,
-    packages=['tachikoma',],
+    packages=find_packages(),
     include_package_data=True,
     license = "MIT",
     classifiers = [
