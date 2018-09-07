@@ -14,7 +14,7 @@ what you want to do!
 
 setup(
     name='tachikoma',
-    version="1.3",
+    version="1.4",
     url='https://github.com/CaliDog/tachikoma/',
     author='Ryan Sears',
     install_requires=dependencies,
